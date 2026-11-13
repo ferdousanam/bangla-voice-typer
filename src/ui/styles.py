@@ -222,116 +222,201 @@ def get_settings_dialog_style(theme: str = "dark") -> str:
     if theme == "light":
         return f"""
         QDialog {{
-            background-color: #f8fafc;
+            background-color: #f8f9fa;
             color: #0f172a;
             font-family: {FONT_FAMILY};
         }}
 
-        QLabel {{
-            color: #1e293b;
-            font-size: 14px;
+        QDialog QLabel {{
+            color: #0f172a;
             font-family: {FONT_FAMILY};
-            padding-top: 2px;
         }}
 
-        QLabel#HeaderTitle {{
+        /* Left Sidebar (Light Mode) */
+        QWidget#SidebarContainer {{
+            background-color: #f1f3f5;
+            border-right: 1px solid #e2e8f0;
+        }}
+
+        QLabel#SidebarTitle {{
             color: #0f172a;
-            font-size: 19px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: {FONT_FAMILY};
+        }}
+
+        QLabel#SidebarSubtitle {{
+            color: #64748b;
+            font-size: 11px;
+            font-family: {ENGLISH_FONT};
+        }}
+
+        QLabel#NavGroupHeader {{
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: {FONT_FAMILY};
+            letter-spacing: 0.5px;
+            padding: 12px 12px 4px 12px;
+        }}
+
+        QListWidget#SidebarList {{
+            background-color: transparent;
+            border: none;
+            outline: none;
+            padding: 0px 4px;
+        }}
+
+        QListWidget#SidebarList::item {{
+            height: 38px;
+            padding-left: 10px;
+            border-radius: 6px;
+            margin: 2px 4px;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: {FONT_FAMILY};
+        }}
+
+        QListWidget#SidebarList::item:hover {{
+            background-color: #e2e8f0;
+            color: #0f172a;
+        }}
+
+        QListWidget#SidebarList::item:selected {{
+            background-color: #e2e8f0;
+            color: #0f172a;
+            font-weight: 600;
+        }}
+
+        /* Content Area & Scroll */
+        QWidget#ContentContainer {{
+            background-color: #f8f9fa;
+        }}
+
+        QScrollArea#SettingsScrollArea {{
+            background-color: transparent;
+            border: none;
+        }}
+
+        QScrollArea#SettingsScrollArea > QWidget > QWidget {{
+            background-color: transparent;
+        }}
+
+        QWidget#ScrollContent {{
+            background-color: transparent;
+        }}
+
+        /* Completely invisible scrollbar */
+        QScrollBar:vertical, QScrollBar:horizontal {{
+            background: transparent;
+            width: 0px;
+            height: 0px;
+            margin: 0px;
+            border: none;
+        }}
+        QScrollBar::handle:vertical, QScrollBar::handle:horizontal {{
+            background: transparent;
+            width: 0px;
+            height: 0px;
+        }}
+        QScrollBar::add-line, QScrollBar::sub-line, QScrollBar::add-page, QScrollBar::sub-page {{
+            background: transparent;
+            width: 0px;
+            height: 0px;
+        }}
+
+        /* Headers */
+        QLabel#PageTitle {{
+            color: #0f172a;
+            font-size: 18px;
+            font-weight: 700;
             font-family: {FONT_FAMILY};
             padding-bottom: 2px;
         }}
 
-        QLabel#HeaderSubtitle {{
+        QLabel#PageSubtitle {{
             color: #64748b;
-            font-size: 13px;
+            font-size: 12px;
             font-family: {FONT_FAMILY};
-            margin-bottom: 4px;
+            margin-bottom: 12px;
         }}
 
-        QLabel#InfoHint {{
-            color: #0284c7;
-            background-color: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 6px;
-            padding: 7px 12px;
-            font-size: 11px;
-            font-family: {FONT_FAMILY};
-            margin-top: 4px;
-            margin-bottom: 4px;
-        }}
-
-        /* Modern Tabs (Light Mode) */
-        QTabWidget::pane {{
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
+        /* Setting Cards */
+        QFrame#SettingsCard {{
             background-color: #ffffff;
-            padding: 16px;
-            top: -1px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 4px 16px;
         }}
 
-        QTabBar::tab {{
-            background-color: #f1f5f9;
-            color: #64748b;
-            border: 1px solid #e2e8f0;
-            border-bottom: none;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            padding: 8px 16px;
-            margin-right: 4px;
+        QLabel#CardSectionTitle {{
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: {FONT_FAMILY};
+            padding: 4px 0px 2px 0px;
+        }}
+
+        QLabel#RowTitle {{
+            color: #0f172a;
             font-size: 13px;
             font-weight: 600;
             font-family: {FONT_FAMILY};
         }}
 
-        QTabBar::tab:selected {{
-            background-color: #ffffff;
-            color: #2563eb;
-            border-color: #e2e8f0;
-            border-bottom: 2px solid #2563eb;
+        QLabel#RowSubtitle {{
+            color: #64748b;
+            font-size: 11px;
+            font-family: {FONT_FAMILY};
         }}
 
-        QTabBar::tab:hover:!selected {{
-            background-color: #e2e8f0;
-            color: #0f172a;
+        QLabel#ValueLabel {{
+            color: #475569;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: {FONT_FAMILY};
         }}
 
-        /* Card Widgets inside tabs */
-        QWidget#TabContent {{
-            background-color: transparent;
+        QFrame#RowSeparator {{
+            background-color: #f1f5f9;
+            height: 1px;
+            border: none;
+            max-height: 1px;
         }}
 
-        QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
+        /* Controls */
+        QLineEdit, QComboBox, QSpinBox {{
             background-color: #ffffff;
             color: #0f172a;
             border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 8px 12px;
+            border-radius: 6px;
+            padding: 6px 10px;
             font-size: 13px;
             font-family: {FONT_FAMILY};
             min-height: 22px;
         }}
 
-        QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus {{
+        QLineEdit:focus, QComboBox:focus, QSpinBox:focus {{
             border: 1px solid #2563eb;
             background-color: #ffffff;
         }}
 
         QComboBox {{
-            padding-right: 30px;
+            padding-right: 28px;
         }}
 
         QComboBox::drop-down {{
             subcontrol-origin: padding;
             subcontrol-position: top right;
-            width: 28px;
+            width: 24px;
             border-left: 1px solid #e2e8f0;
         }}
 
         QComboBox::down-arrow {{
             image: url({chevron_icon});
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
         }}
 
         QComboBox QAbstractItemView {{
@@ -340,45 +425,79 @@ def get_settings_dialog_style(theme: str = "dark") -> str:
             selection-background-color: #2563eb;
             selection-color: #ffffff;
             border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 6px;
-            font-family: {FONT_FAMILY};
-        }}
-
-        QCheckBox {{
-            color: #1e293b;
-            font-size: 14px;
-            font-family: {FONT_FAMILY};
-            spacing: 12px;
-            padding: 3px 0;
-        }}
-
-        QCheckBox::indicator {{
-            width: 20px;
-            height: 20px;
             border-radius: 6px;
-            border: 2px solid #94a3b8;
-            background-color: #ffffff;
+            padding: 4px;
+            font-family: {FONT_FAMILY};
         }}
 
-        QCheckBox::indicator:hover {{
-            border-color: #64748b;
+        QPushButton#EyeButton {{
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 13px;
         }}
 
-        QCheckBox::indicator:checked {{
-            background-color: #2563eb;
-            border-color: #2563eb;
-            image: url({CHECK_ICON});
+        QPushButton#EyeButton:hover {{
+            background-color: #e2e8f0;
+            color: #0f172a;
+        }}
+
+        /* Badges & Notice Boxes */
+        QLabel#NoticeBox {{
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #166534;
+            font-size: 12px;
+            font-family: {FONT_FAMILY};
+            line-height: 1.4;
+        }}
+
+        QLabel#InfoBox {{
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #1e40af;
+            font-size: 12px;
+            font-family: {FONT_FAMILY};
+            line-height: 1.4;
+        }}
+
+        QLabel#KbdBadge {{
+            background-color: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            padding: 4px 8px;
+            font-family: {ENGLISH_FONT};
+            font-size: 12px;
+            font-weight: 600;
+        }}
+
+        /* Footer */
+        QWidget#DialogFooter {{
+            background-color: #f1f3f5;
+            border-top: 1px solid #e2e8f0;
+        }}
+
+        QLabel#FooterHint {{
+            color: #64748b;
+            font-size: 11px;
+            font-family: {FONT_FAMILY};
         }}
 
         QPushButton#SaveButton {{
             background-color: #2563eb;
             color: #ffffff;
             border: none;
-            border-radius: 8px;
-            padding: 10px 24px;
-            font-size: 14px;
-            font-weight: bold;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
             font-family: {FONT_FAMILY};
         }}
 
@@ -387,181 +506,299 @@ def get_settings_dialog_style(theme: str = "dark") -> str:
         }}
 
         QPushButton#CancelButton {{
-            background-color: #f1f5f9;
+            background-color: #ffffff;
             color: #475569;
             border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 14px;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
             font-family: {FONT_FAMILY};
         }}
 
         QPushButton#CancelButton:hover {{
-            background-color: #e2e8f0;
+            background-color: #f1f5f9;
             color: #0f172a;
         }}
         """
     else:
         return f"""
         QDialog {{
-            background-color: #0d0f13;
-            color: #f8fafc;
+            background-color: #101012;
+            color: #f4f4f5;
             font-family: {FONT_FAMILY};
         }}
 
-        QLabel {{
-            color: #f1f5f9;
-            font-size: 14px;
+        QDialog QLabel {{
+            color: #f4f4f5;
             font-family: {FONT_FAMILY};
-            padding-top: 2px;
         }}
 
-        QLabel#HeaderTitle {{
+        /* Left Sidebar (Dark Mode) */
+        QWidget#SidebarContainer {{
+            background-color: #0d0d0f;
+            border-right: 1px solid #1f1f23;
+        }}
+
+        QLabel#SidebarTitle {{
             color: #ffffff;
-            font-size: 19px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: {FONT_FAMILY};
+        }}
+
+        QLabel#SidebarSubtitle {{
+            color: #71717a;
+            font-size: 11px;
+            font-family: {ENGLISH_FONT};
+        }}
+
+        QLabel#NavGroupHeader {{
+            color: #71717a;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: {FONT_FAMILY};
+            letter-spacing: 0.5px;
+            padding: 12px 12px 4px 12px;
+        }}
+
+        QListWidget#SidebarList {{
+            background-color: transparent;
+            border: none;
+            outline: none;
+            padding: 0px 4px;
+        }}
+
+        QListWidget#SidebarList::item {{
+            height: 38px;
+            padding-left: 10px;
+            border-radius: 6px;
+            margin: 2px 4px;
+            color: #a1a1aa;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: {FONT_FAMILY};
+        }}
+
+        QListWidget#SidebarList::item:hover {{
+            background-color: #18181b;
+            color: #f4f4f5;
+        }}
+
+        QListWidget#SidebarList::item:selected {{
+            background-color: #27272a;
+            color: #ffffff;
+            font-weight: 600;
+        }}
+
+        /* Content Area & Scroll */
+        QWidget#ContentContainer {{
+            background-color: #101012;
+        }}
+
+        QScrollArea#SettingsScrollArea {{
+            background-color: transparent;
+            border: none;
+        }}
+
+        QScrollArea#SettingsScrollArea > QWidget > QWidget {{
+            background-color: transparent;
+        }}
+
+        QWidget#ScrollContent {{
+            background-color: transparent;
+        }}
+
+        /* Completely invisible scrollbar */
+        QScrollBar:vertical, QScrollBar:horizontal {{
+            background: transparent;
+            width: 0px;
+            height: 0px;
+            margin: 0px;
+            border: none;
+        }}
+        QScrollBar::handle:vertical, QScrollBar::handle:horizontal {{
+            background: transparent;
+            width: 0px;
+            height: 0px;
+        }}
+        QScrollBar::add-line, QScrollBar::sub-line, QScrollBar::add-page, QScrollBar::sub-page {{
+            background: transparent;
+            width: 0px;
+            height: 0px;
+        }}
+
+        /* Headers */
+        QLabel#PageTitle {{
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
             font-family: {FONT_FAMILY};
             padding-bottom: 2px;
         }}
 
-        QLabel#HeaderSubtitle {{
-            color: #94a3b8;
+        QLabel#PageSubtitle {{
+            color: #8e8e93;
+            font-size: 12px;
+            font-family: {FONT_FAMILY};
+            margin-bottom: 12px;
+        }}
+
+        /* Setting Cards */
+        QFrame#SettingsCard {{
+            background-color: #161619;
+            border: 1px solid #27272b;
+            border-radius: 10px;
+            padding: 4px 16px;
+        }}
+
+        QLabel#CardSectionTitle {{
+            color: #f4f4f5;
             font-size: 13px;
+            font-weight: 600;
             font-family: {FONT_FAMILY};
-            margin-bottom: 4px;
+            padding: 4px 0px 2px 0px;
         }}
 
-        QLabel#InfoHint {{
-            color: #38bdf8;
-            background-color: rgba(56, 189, 248, 0.08);
-            border: 1px solid rgba(56, 189, 248, 0.22);
-            border-radius: 6px;
-            padding: 7px 12px;
-            font-size: 11px;
-            font-family: {FONT_FAMILY};
-            margin-top: 4px;
-            margin-bottom: 4px;
-        }}
-
-        /* Modern Tabs (Dark Mode) */
-        QTabWidget::pane {{
-            border: 1px solid #282d3b;
-            border-radius: 12px;
-            background-color: #151821;
-            padding: 16px;
-            top: -1px;
-        }}
-
-        QTabBar::tab {{
-            background-color: #1a1e28;
-            color: #94a3b8;
-            border: 1px solid #282d3b;
-            border-bottom: none;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            padding: 8px 16px;
-            margin-right: 4px;
+        QLabel#RowTitle {{
+            color: #f4f4f5;
             font-size: 13px;
             font-weight: 600;
             font-family: {FONT_FAMILY};
         }}
 
-        QTabBar::tab:selected {{
-            background-color: #151821;
-            color: #38bdf8;
-            border-color: #282d3b;
-            border-bottom: 2px solid #38bdf8;
+        QLabel#RowSubtitle {{
+            color: #71717a;
+            font-size: 11px;
+            font-family: {FONT_FAMILY};
         }}
 
-        QTabBar::tab:hover:!selected {{
-            background-color: #222735;
-            color: #f1f5f9;
+        QLabel#ValueLabel {{
+            color: #a1a1aa;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: {FONT_FAMILY};
         }}
 
-        /* Card Widgets inside tabs */
-        QWidget#TabContent {{
-            background-color: transparent;
+        QFrame#RowSeparator {{
+            background-color: #232328;
+            height: 1px;
+            border: none;
+            max-height: 1px;
         }}
 
-        QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
-            background-color: #0e1016;
-            color: #ffffff;
-            border: 1px solid #333a4c;
-            border-radius: 8px;
-            padding: 8px 12px;
+        /* Controls */
+        QLineEdit, QComboBox, QSpinBox {{
+            background-color: #0c0c0e;
+            color: #f4f4f5;
+            border: 1px solid #2c2c32;
+            border-radius: 6px;
+            padding: 6px 10px;
             font-size: 13px;
             font-family: {FONT_FAMILY};
             min-height: 22px;
         }}
 
-        QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus {{
+        QLineEdit:focus, QComboBox:focus, QSpinBox:focus {{
             border: 1px solid #3b82f6;
-            background-color: #131620;
+            background-color: #121215;
         }}
 
         QComboBox {{
-            padding-right: 30px;
+            padding-right: 28px;
         }}
 
         QComboBox::drop-down {{
             subcontrol-origin: padding;
             subcontrol-position: top right;
-            width: 28px;
-            border-left: 1px solid #282d3b;
+            width: 24px;
+            border-left: 1px solid #26262b;
         }}
 
         QComboBox::down-arrow {{
             image: url({chevron_icon});
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
         }}
 
         QComboBox QAbstractItemView {{
-            background-color: #151821;
-            color: #f8fafc;
+            background-color: #161619;
+            color: #f4f4f5;
             selection-background-color: #2563eb;
             selection-color: #ffffff;
-            border: 1px solid #333a4c;
-            border-radius: 8px;
-            padding: 6px;
-            font-family: {FONT_FAMILY};
-        }}
-
-        QCheckBox {{
-            color: #f1f5f9;
-            font-size: 14px;
-            font-family: {FONT_FAMILY};
-            spacing: 12px;
-            padding: 3px 0;
-        }}
-
-        QCheckBox::indicator {{
-            width: 20px;
-            height: 20px;
+            border: 1px solid #2e2e34;
             border-radius: 6px;
-            border: 2px solid #64748b;
-            background-color: #0e1016;
+            padding: 4px;
+            font-family: {FONT_FAMILY};
         }}
 
-        QCheckBox::indicator:hover {{
-            border-color: #94a3b8;
-            background-color: #131620;
+        QPushButton#EyeButton {{
+            background-color: #1c1c1f;
+            color: #a1a1aa;
+            border: 1px solid #2c2c32;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 13px;
         }}
 
-        QCheckBox::indicator:checked {{
-            background-color: #2563eb;
-            border-color: #2563eb;
-            image: url({CHECK_ICON});
+        QPushButton#EyeButton:hover {{
+            background-color: #27272a;
+            color: #ffffff;
+        }}
+
+        /* Badges & Notice Boxes */
+        QLabel#NoticeBox {{
+            background-color: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.22);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #4ade80;
+            font-size: 12px;
+            font-family: {FONT_FAMILY};
+            line-height: 1.4;
+        }}
+
+        QLabel#InfoBox {{
+            background-color: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #38bdf8;
+            font-size: 12px;
+            font-family: {FONT_FAMILY};
+            line-height: 1.4;
+        }}
+
+        QLabel#KbdBadge {{
+            background-color: #1c1c20;
+            color: #38bdf8;
+            border: 1px solid #2d2d35;
+            border-radius: 5px;
+            padding: 4px 8px;
+            font-family: {ENGLISH_FONT};
+            font-size: 12px;
+            font-weight: 600;
+        }}
+
+        /* Footer */
+        QWidget#DialogFooter {{
+            background-color: #0e0e10;
+            border-top: 1px solid #1f1f23;
+        }}
+
+        QLabel#FooterHint {{
+            color: #71717a;
+            font-size: 11px;
+            font-family: {FONT_FAMILY};
         }}
 
         QPushButton#SaveButton {{
             background-color: #2563eb;
             color: #ffffff;
             border: none;
-            border-radius: 8px;
-            padding: 10px 24px;
-            font-size: 14px;
-            font-weight: bold;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
             font-family: {FONT_FAMILY};
         }}
 
@@ -570,19 +807,18 @@ def get_settings_dialog_style(theme: str = "dark") -> str:
         }}
 
         QPushButton#CancelButton {{
-            background-color: #1e222e;
-            color: #cbd5e1;
-            border: 1px solid #333a4c;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 14px;
+            background-color: #161619;
+            color: #a1a1aa;
+            border: 1px solid #2c2c32;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
             font-family: {FONT_FAMILY};
         }}
 
         QPushButton#CancelButton:hover {{
-            background-color: #282d3d;
-            color: #ffffff;
-            border-color: #475569;
+            background-color: #222226;
+            color: #f4f4f5;
         }}
         """
 

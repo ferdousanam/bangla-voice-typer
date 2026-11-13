@@ -34,7 +34,13 @@ def get_version() -> str:
     ref = os.environ.get("GITHUB_REF_NAME", "").strip()
     if ref:
         return ref.lstrip("v")
-    return os.environ.get("RELEASE_VERSION", "1.0.0").strip().lstrip("v")
+    if os.environ.get("RELEASE_VERSION"):
+        return os.environ.get("RELEASE_VERSION").strip().lstrip("v")
+    try:
+        from src import __version__
+        return __version__.lstrip("v")
+    except Exception:
+        return "dev"
 
 
 VERSION = get_version()
@@ -158,6 +164,10 @@ def add_release_files():
     config_dest = RELEASE_DIR / "config.json"
     if not config_dest.exists():
         config_dest.write_text(default_config, encoding="utf-8")
+
+    # Release version file
+    version_dest = RELEASE_DIR / "version.txt"
+    version_dest.write_text(f"v{VERSION}", encoding="utf-8")
 
     # Portable instructions (Bangla + English)
     readme_content = (

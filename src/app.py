@@ -86,8 +86,10 @@ class VoiceTyperApp:
     def trigger_recording(self):
         self.speech_engine.trigger_transcription()
 
-    def open_settings(self):
+    def open_settings(self, tab_index=None):
         if self.settings_dialog is not None and self.settings_dialog.isVisible():
+            if tab_index is not None:
+                self.settings_dialog.sidebar_list.setCurrentRow(tab_index)
             self.settings_dialog.showNormal()
             self.settings_dialog.raise_()
             self.settings_dialog.activateWindow()
@@ -98,6 +100,8 @@ class VoiceTyperApp:
             on_saved_callback=self._on_settings_saved,
             parent=None
         )
+        if tab_index is not None:
+            self.settings_dialog.sidebar_list.setCurrentRow(tab_index)
         self.settings_dialog.show()
         self.settings_dialog.raise_()
         self.settings_dialog.activateWindow()

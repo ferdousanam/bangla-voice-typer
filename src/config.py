@@ -8,6 +8,25 @@ def get_base_dir() -> str:
         return os.path.dirname(sys.executable)
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+def get_app_version() -> str:
+    """Dynamically resolve application version from version.txt, package metadata, or fallback"""
+    base_dir = get_base_dir()
+    for candidate in ["version.txt", "VERSION"]:
+        v_path = os.path.join(base_dir, candidate)
+        if os.path.exists(v_path):
+            try:
+                with open(v_path, "r", encoding="utf-8") as f:
+                    ver = f.read().strip()
+                    if ver:
+                        return ver if ver.startswith("v") else f"v{ver}"
+            except Exception:
+                pass
+    try:
+        from src import __version__
+        return f"v{__version__.lstrip('v')}"
+    except Exception:
+        return "v2.0.0"
+
 CONFIG_FILE = os.path.join(get_base_dir(), "config.json")
 
 DEFAULT_CONFIG = {

@@ -79,9 +79,14 @@ class SpeechEngine(QObject):
     def _transcribe_with_gemini(self, audio, api_key: str, model_name: str) -> str:
         """Transcribe audio using Google Gemini API with fallback and timeout"""
         from google import genai
+        from google.genai import types
 
         wav_bytes = audio.get_wav_data(convert_rate=16000, convert_width=2)
-        client = genai.Client(api_key=api_key)
+        # Google Gemini API minimum deadline is 10s. Set client timeout to 10s for fast fallback.
+        client = genai.Client(
+            api_key=api_key,
+            http_options=types.HttpOptions(timeout=10000)
+        )
 
         prompt = (
             "You are an expert, highly accurate Bengali speech-to-text transcriber. "
@@ -98,22 +103,21 @@ class SpeechEngine(QObject):
         seen = set()
         models_to_try = [m for m in candidates if m and not (m in seen or seen.add(m))]
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            last_err = None
-            for m in models_to_try:
-                try:
-                    future = executor.submit(self._call_gemini_api, client, m, wav_bytes, prompt)
-                    text = future.result(timeout=8.5)
-                    if text:
-                        return text
-                except Exception as e:
-                    last_err = e
-                    print(f"[Gemini {m} failed]: {e}")
-                    continue
+        last_err = None
+        for m in models_to_try:
+            try:
+                text = self._call_gemini_api(client, m, wav_bytes, prompt)
+                if text:
+                    return text
+            except Exception as e:
+                last_err = e
+                err_msg = str(e) or type(e).__name__
+                print(f"[Gemini {m} failed]: {err_msg}")
+                continue
 
-            if last_err:
-                raise last_err
-            return ""
+        if last_err:
+            raise last_err
+        return ""
 
     def _record_and_transcribe_worker(self):
         sound_enabled = self.config.get("sound_feedback", True)
@@ -188,7 +192,8 @@ class SpeechEngine(QObject):
                 try:
                     text = self._transcribe_with_gemini(audio_data, gemini_key, gemini_model)
                 except Exception as gemini_err:
-                    print(f"[Gemini Fallback]: {gemini_err}. Falling back to Google STT...")
+                    err_txt = str(gemini_err) or type(gemini_err).__name__
+                    print(f"[Gemini Fallback]: {err_txt}. Falling back to Google STT...")
                     text = self.recognizer.recognize_google(audio_data, language=language)
             else:
                 text = self.recognizer.recognize_google(audio_data, language=language)

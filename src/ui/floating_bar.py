@@ -35,7 +35,7 @@ class FloatingBar(QWidget):
         self._is_dragging = False
 
         # Strictly fixed size to prevent any auto-resizing or jumping
-        self.setFixedSize(410, 58)
+        self.setFixedSize(310, 56)
 
         self._init_window_flags()
         self._init_ui()
@@ -63,7 +63,7 @@ class FloatingBar(QWidget):
         self.container.setObjectName("FloatingContainer")
         container_layout = QHBoxLayout(self.container)
         container_layout.setContentsMargins(10, 4, 10, 4)
-        container_layout.setSpacing(8)
+        container_layout.setSpacing(6)
 
         # Drag Handle Icon
         self.drag_handle = QLabel("⠿")
@@ -84,16 +84,18 @@ class FloatingBar(QWidget):
         # Status Label (Strictly fixed width, only short status words)
         self.status_label = QLabel("প্রস্তুত")
         self.status_label.setObjectName("StatusLabel")
-        self.status_label.setFixedWidth(56)
+        self.status_label.setFixedWidth(54)
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         container_layout.addWidget(self.status_label)
 
-        # Hotkey badge (Ctrl + Shift + B)
-        self.hotkey_badge = QLabel("Ctrl + Shift + B")
-        self.hotkey_badge.setObjectName("HotkeyBadge")
-        self.hotkey_badge.setFixedWidth(98)
-        self.hotkey_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        container_layout.addWidget(self.hotkey_badge)
+        # Hotkey Button (Keyboard icon with tooltip)
+        self.btn_hotkey = QPushButton("⌨️")
+        self.btn_hotkey.setProperty("class", "ActionButton")
+        self.btn_hotkey.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.btn_hotkey.setToolTip(self._get_hotkey_tooltip())
+        if self.on_settings_click:
+            self.btn_hotkey.clicked.connect(lambda: self.on_settings_click(tab_index=3))
+        container_layout.addWidget(self.btn_hotkey)
 
         # History / Output Window Button
         self.btn_history = QPushButton("📝")
@@ -110,7 +112,7 @@ class FloatingBar(QWidget):
         self.btn_settings.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.btn_settings.setToolTip("সেটিংস")
         if self.on_settings_click:
-            self.btn_settings.clicked.connect(self.on_settings_click)
+            self.btn_settings.clicked.connect(lambda: self.on_settings_click())
         container_layout.addWidget(self.btn_settings)
 
         # Minimize to Tray button
@@ -136,11 +138,19 @@ class FloatingBar(QWidget):
         self.btn_mic.style().unpolish(self.btn_mic)
         self.btn_mic.style().polish(self.btn_mic)
 
+    def _get_hotkey_tooltip(self) -> str:
+        hotkey_name = format_hotkey_label(self.config.get("hotkey", "ctrl+shift+b"))
+        return (
+            f"কীবোর্ড শর্টকাট:\n"
+            f"• শুরু করতে: Win + Space (পরপর ২ বার) অথবা {hotkey_name}\n"
+            f"• থামাতে: Win + Space (১ বার)"
+        )
+
     def set_listening(self):
         self.show_widget_if_hidden()
         self._set_mic_state("recording", "⏹️")
         self.btn_mic.setToolTip("রেকর্ডিং থামাতে ক্লিক করুন (Win + Space)")
-        self.hotkey_badge.setText("Win + Space")
+        self.btn_hotkey.setToolTip("থামাতে: Win + Space (১ বার চাপুন) অথবা ⏹️ বাটনে ক্লিক করুন")
         self.status_label.setText("শুনছি...")
         self.status_label.setToolTip("কথা বলা শেষ হলে Win + Space চাপুন বা ⏹️ ক্লিক করুন")
         self.status_label.setStyleSheet("color: #dc2626; font-weight: bold;")
@@ -168,8 +178,7 @@ class FloatingBar(QWidget):
     def reset_to_idle(self):
         self._set_mic_state("idle", "🎤")
         self.btn_mic.setToolTip("ভয়েস টাইপিং শুরু করতে Win + Double Space চাপুন")
-        
-        self.hotkey_badge.setText("Win + Space x2")
+        self.btn_hotkey.setToolTip(self._get_hotkey_tooltip())
 
         self.status_label.setText("প্রস্তুত")
         self.status_label.setStyleSheet("")
