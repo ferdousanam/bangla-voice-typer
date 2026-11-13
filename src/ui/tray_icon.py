@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
 from PyQt6.QtGui import QIcon, QPixmap, QPainter, QColor, QFont
 from PyQt6.QtCore import Qt
 from src.ui.styles import get_tray_menu_style, resolve_theme
+from src.core.logger import open_log_file
 
 def create_default_tray_icon():
     """Generates a crisp 64x64 tray icon programmatically with Bengali letter 'ব'"""
@@ -60,6 +61,9 @@ class SystemTray(QSystemTrayIcon):
         action_settings = self.menu.addAction("⚙️ সেটিংস")
         if self.on_settings_trigger:
             action_settings.triggered.connect(self.on_settings_trigger)
+
+        action_logs = self.menu.addAction("📋 এরর লগ দেখুন (View Logs)")
+        action_logs.triggered.connect(open_log_file)
 
         self.menu.addSeparator()
 

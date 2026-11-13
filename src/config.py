@@ -62,7 +62,12 @@ class ConfigManager:
                     if key not in data:
                         data[key] = val
                 return data
-        except Exception:
+        except Exception as e:
+            try:
+                from src.core.logger import get_logger
+                get_logger("config").error(f"Failed to read config from {self.filepath}: {e}", exc_info=True)
+            except Exception:
+                pass
             return DEFAULT_CONFIG.copy()
 
     def save(self, data=None):
@@ -72,7 +77,11 @@ class ConfigManager:
             with open(self.filepath, "w", encoding="utf-8") as f:
                 json.dump(self.config, f, indent=4, ensure_ascii=False)
         except Exception as e:
-            print(f"Error saving config: {e}")
+            try:
+                from src.core.logger import get_logger
+                get_logger("config").error(f"Failed to save config to {self.filepath}: {e}", exc_info=True)
+            except Exception:
+                print(f"Error saving config: {e}")
 
     def get(self, key, default=None):
         return self.config.get(key, default if default is not None else DEFAULT_CONFIG.get(key))

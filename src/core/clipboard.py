@@ -1,7 +1,9 @@
 import time
 import pyperclip
 from pynput.keyboard import Controller, Key
+from src.core.logger import get_logger
 
+logger = get_logger("clipboard")
 kbd_controller = Controller()
 
 def paste_text(text: str):
@@ -26,5 +28,6 @@ def paste_text(text: str):
             kbd_controller.tap('v')
 
         time.sleep(0.06)
+        logger.debug(f"Pasted text via clipboard ({len(text)} chars)")
     except Exception as e:
-        print(f"[Clipboard Error]: {e}")
+        logger.error(f"Clipboard simulation paste error: {e}", exc_info=True)

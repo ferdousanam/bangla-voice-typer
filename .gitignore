@@ -8,4 +8,6 @@ env/
 config.json
 build/
 dist/
+logs/
+*.log
 *.spec

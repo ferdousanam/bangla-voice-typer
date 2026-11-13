@@ -519,6 +519,22 @@ def get_settings_dialog_style(theme: str = "dark") -> str:
             background-color: #f1f5f9;
             color: #0f172a;
         }}
+
+        QPushButton#SecondaryButton {{
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: {FONT_FAMILY};
+        }}
+
+        QPushButton#SecondaryButton:hover {{
+            background-color: #e2e8f0;
+            color: #0f172a;
+        }}
         """
     else:
         return f"""
@@ -819,6 +835,22 @@ def get_settings_dialog_style(theme: str = "dark") -> str:
         QPushButton#CancelButton:hover {{
             background-color: #222226;
             color: #f4f4f5;
+        }}
+
+        QPushButton#SecondaryButton {{
+            background-color: #222226;
+            color: #e4e4e7;
+            border: 1px solid #333338;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: {FONT_FAMILY};
+        }}
+
+        QPushButton#SecondaryButton:hover {{
+            background-color: #2c2c32;
+            color: #ffffff;
         }}
         """
 

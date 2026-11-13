@@ -8,6 +8,7 @@ from PyQt6.QtCore import Qt, QRectF, pyqtSignal
 from PyQt6.QtGui import QPainter, QColor
 from src.ui.styles import get_settings_dialog_style, resolve_theme
 from src.config import get_app_version
+from src.core.logger import open_log_file, open_log_folder, get_log_file_path
 
 
 class ToggleSwitch(QWidget):
@@ -727,6 +728,35 @@ class SettingsDialog(QDialog):
         card_layout.addWidget(row_lic)
 
         layout.addWidget(card)
+
+        # Card 2: Diagnostics & Logs Card
+        card_log, card_log_layout = self._create_card("ডায়াগনস্টিক ও এরর লগ")
+
+        btn_open_log = QPushButton("📋 এরর লগ দেখুন")
+        btn_open_log.setObjectName("SecondaryButton")
+        btn_open_log.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn_open_log.clicked.connect(open_log_file)
+        row_open_log = self._create_setting_row("সফটওয়্যার লগ ফাইল", "যেকোনো এরর বা কার্যবিবরণী সরাসরি দেখতে ফাইলটি খুলুন", btn_open_log)
+        card_log_layout.addWidget(row_open_log)
+        card_log_layout.addWidget(self._create_separator())
+
+        btn_open_folder = QPushButton("📁 ফোল্ডার খুলুন")
+        btn_open_folder.setObjectName("SecondaryButton")
+        btn_open_folder.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn_open_folder.clicked.connect(open_log_folder)
+        row_open_folder = self._create_setting_row("লগ ফোল্ডার", "লগ ফাইল সংরক্ষিত ফোল্ডারটি ফাইল এক্সপ্লোরারে খুলুন", btn_open_folder)
+        card_log_layout.addWidget(row_open_folder)
+        card_log_layout.addWidget(self._create_separator())
+
+        log_path_lbl = QLabel(get_log_file_path())
+        log_path_lbl.setObjectName("ValueLabel")
+        log_path_lbl.setStyleSheet("font-size: 11px; color: #8e8e93;")
+        log_path_lbl.setWordWrap(True)
+        log_path_lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        row_path = self._create_setting_row("লগ ফাইলের পাথ", "বর্তমান সক্রিয় লগ ফাইলের ডিস্ক লোকেশন", log_path_lbl)
+        card_log_layout.addWidget(row_path)
+
+        layout.addWidget(card_log)
         layout.addStretch()
         return page
 

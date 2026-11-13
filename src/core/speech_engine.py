@@ -5,6 +5,7 @@ import pyaudio
 import speech_recognition as sr
 from PyQt6.QtCore import QObject, pyqtSignal
 
+from src.core.logger import get_logger
 from src.core.audio_feedback import (
     play_start_sound,
     play_processing_sound,
@@ -22,6 +23,7 @@ class SpeechEngine(QObject):
 
     def __init__(self, config_manager):
         super().__init__()
+        self.logger = get_logger("speech_engine")
         self.config = config_manager
         self.recognizer = sr.Recognizer()
         
@@ -35,19 +37,26 @@ class SpeechEngine(QObject):
         if self.config:
             self.recognizer.energy_threshold = self.config.get("energy_threshold", 300)
             self.recognizer.pause_threshold = self.config.get("pause_threshold", 0.8)
+            self.logger.debug(
+                f"SpeechEngine settings applied: energy_threshold={self.recognizer.energy_threshold}, "
+                f"pause_threshold={self.recognizer.pause_threshold}"
+            )
 
     def start_recording(self):
         """Starts recording if idle"""
         with self._lock:
             if self.is_processing or self.is_recording:
+                self.logger.debug("start_recording called but engine is already recording or processing.")
                 return
             self.is_recording = True
+        self.logger.info("Recording initiated.")
         threading.Thread(target=self._record_and_transcribe_worker, daemon=True).start()
 
     def stop_recording(self):
         """Stops recording if currently active"""
         with self._lock:
             if self.is_recording:
+                self.logger.info("Recording stop requested.")
                 self.is_recording = False
 
     def toggle_recording(self):
@@ -106,16 +115,19 @@ class SpeechEngine(QObject):
         last_err = None
         for m in models_to_try:
             try:
+                self.logger.debug(f"Attempting Gemini transcription using model '{m}'...")
                 text = self._call_gemini_api(client, m, wav_bytes, prompt)
                 if text:
+                    self.logger.info(f"Gemini transcription successful with model '{m}'")
                     return text
             except Exception as e:
                 last_err = e
                 err_msg = str(e) or type(e).__name__
-                print(f"[Gemini {m} failed]: {err_msg}")
+                self.logger.warning(f"Gemini model '{m}' failed: {err_msg}", exc_info=True)
                 continue
 
         if last_err:
+            self.logger.error("All candidate Gemini models failed.", exc_info=True)
             raise last_err
         return ""
 
@@ -140,6 +152,7 @@ class SpeechEngine(QObject):
                 frames_per_buffer=1024
             )
 
+            self.logger.info("Microphone stream opened successfully. Recording started...")
             self.listening_started.emit()
             play_start_sound(sound_enabled)
 
@@ -153,7 +166,7 @@ class SpeechEngine(QObject):
                 chunk_count += 1
 
         except Exception as audio_err:
-            print(f"[Mic Error]: {audio_err}")
+            self.logger.error(f"Microphone recording error: {audio_err}", exc_info=True)
             play_error_sound(sound_enabled)
             self.error_occurred.emit(f"মাইক সমস্যা: {audio_err}")
             self.state_idle.emit()
@@ -175,12 +188,16 @@ class SpeechEngine(QObject):
         raw_bytes = b"".join(frames)
         # If less than 0.35s was recorded, cancel
         if len(raw_bytes) < (16000 * 2 * 0.35):
+            self.logger.info(f"Recorded audio too brief ({len(raw_bytes)} bytes). Discarding.")
             self.state_idle.emit()
             with self._lock:
                 self.is_processing = False
             return
 
         try:
+            self.logger.info(
+                f"Audio recording completed ({len(raw_bytes)} bytes, ~{len(raw_bytes)/32000:.1f}s). Processing with engine='{engine_mode}', lang='{language}'..."
+            )
             self.processing_started.emit()
             play_processing_sound(sound_enabled)
 
@@ -193,27 +210,34 @@ class SpeechEngine(QObject):
                     text = self._transcribe_with_gemini(audio_data, gemini_key, gemini_model)
                 except Exception as gemini_err:
                     err_txt = str(gemini_err) or type(gemini_err).__name__
-                    print(f"[Gemini Fallback]: {err_txt}. Falling back to Google STT...")
+                    self.logger.warning(f"Gemini fallback triggered due to: {err_txt}. Falling back to Google STT...", exc_info=True)
                     text = self.recognizer.recognize_google(audio_data, language=language)
             else:
+                if engine_mode == "gemini" and not gemini_key:
+                    self.logger.info("No Gemini API key configured. Using Google STT engine.")
                 text = self.recognizer.recognize_google(audio_data, language=language)
 
             text = (text or "").strip()
 
             if text:
+                self.logger.info(f"Transcription succeeded: '{text}'")
                 paste_text(text)
                 play_success_sound(sound_enabled)
                 self.transcription_success.emit(text)
             else:
+                self.logger.warning("Transcription resulted in empty text.")
                 self.error_occurred.emit("কোনো কথা শোনা যায়নি")
 
         except sr.UnknownValueError:
+            self.logger.warning("Speech recognition could not understand audio (sr.UnknownValueError).")
             play_error_sound(sound_enabled)
             self.error_occurred.emit("কথাটি বোঝা যায়নি")
         except sr.RequestError as e:
+            self.logger.error(f"Speech recognition network/request error: {e}", exc_info=True)
             play_error_sound(sound_enabled)
             self.error_occurred.emit(f"ইন্টারনেট ত্রুটি: {e}")
         except Exception as e:
+            self.logger.error(f"Unexpected error in speech engine: {e}", exc_info=True)
             play_error_sound(sound_enabled)
             self.error_occurred.emit(f"ত্রুটি: {e}")
         finally:

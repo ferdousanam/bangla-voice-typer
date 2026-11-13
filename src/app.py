@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 
 from src.config import ConfigManager
+from src.core.logger import get_logger
 from src.core.speech_engine import SpeechEngine
 from src.core.hotkey_listener import HotkeyListener
 from src.ui.floating_bar import FloatingBar
@@ -13,6 +14,9 @@ from src.ui.output_window import OutputWindow
 
 class VoiceTyperApp:
     def __init__(self):
+        self.logger = get_logger("app")
+        self.logger.info("Initializing VoiceTyperApp...")
+
         self.app = QApplication(sys.argv)
         self.app.setQuitOnLastWindowClosed(False)
         self.app.setApplicationName("BanglaVoiceTyper")
@@ -115,6 +119,7 @@ class VoiceTyperApp:
             self.output_window.activateWindow()
 
     def _on_settings_saved(self):
+        self.logger.info("Settings saved. Updating engines and UI...")
         # Re-apply updated configurations
         self.speech_engine._apply_settings()
         self.hotkey_listener.update_hotkey()
@@ -125,6 +130,7 @@ class VoiceTyperApp:
         self.output_window.apply_theme()
 
     def run(self):
+        self.logger.info("Starting hotkey listener and displaying components...")
         # Start hotkey listener
         self.hotkey_listener.start()
 

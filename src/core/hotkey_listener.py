@@ -2,6 +2,8 @@ import time
 from pynput import keyboard
 from PyQt6.QtCore import QObject, pyqtSignal
 
+from src.core.logger import get_logger
+
 
 def normalize_hotkey(hotkey_str: str) -> str:
     """
@@ -39,6 +41,7 @@ class HotkeyListener(QObject):
 
     def __init__(self, config_manager, speech_engine=None):
         super().__init__()
+        self.logger = get_logger("hotkey")
         self.config = config_manager
         self.speech_engine = speech_engine
 
@@ -56,15 +59,15 @@ class HotkeyListener(QObject):
         try:
             parsed_keys = keyboard.HotKey.parse(norm)
             self.custom_hotkey = keyboard.HotKey(parsed_keys, self._on_custom_hotkey_activated)
-            print(f"[Hotkey Configured]: {norm}")
+            self.logger.info(f"Hotkey successfully registered: {norm} (raw: '{raw_hotkey}')")
         except Exception as e:
-            print(f"[Hotkey Config Error for '{norm}']: {e}. Falling back to '<ctrl>+<shift>+b'")
+            self.logger.error(f"Failed to configure hotkey '{norm}': {e}. Falling back to '<ctrl>+<shift>+b'", exc_info=True)
             parsed_keys = keyboard.HotKey.parse("<ctrl>+<shift>+b")
             self.custom_hotkey = keyboard.HotKey(parsed_keys, self._on_custom_hotkey_activated)
 
     def _on_custom_hotkey_activated(self):
         """Called when configured combination (e.g. Ctrl + Alt + B) is fully pressed"""
-        print("[Hotkey Listener]: Custom shortcut triggered!")
+        self.logger.info("Custom hotkey shortcut activated!")
         self.toggle_triggered.emit()
 
     def start(self):
@@ -75,8 +78,9 @@ class HotkeyListener(QObject):
                 on_release=self._on_release
             )
             self.listener.start()
+            self.logger.info("Global keyboard listener thread started.")
         except Exception as e:
-            print(f"[Hotkey Listener Error]: {e}")
+            self.logger.error(f"Failed to start global keyboard listener: {e}", exc_info=True)
 
     def stop(self):
         if self.listener is not None:
@@ -110,13 +114,13 @@ class HotkeyListener(QObject):
 
             if is_rec:
                 # When recording: Win + Single Space STOPS recording & types text
-                print("[Hotkey Listener]: Win + Space STOP triggered")
+                self.logger.info("Win + Space dictation shortcut triggered: STOP recording")
                 self.stop_triggered.emit()
                 self.last_win_space_time = 0
             else:
                 # When idle: Win + Double Space STARTS recording
                 if (now - self.last_win_space_time) <= 0.55:
-                    print("[Hotkey Listener]: Win + Space START triggered")
+                    self.logger.info("Win + Double Space dictation shortcut triggered: START recording")
                     self.start_triggered.emit()
                     self.last_win_space_time = 0
                 else:
