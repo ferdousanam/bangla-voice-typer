@@ -93,6 +93,16 @@ def get_floating_bar_style(theme: str = "dark") -> str:
             color: #0f172a;
         }}
 
+        QPushButton.ActionButton[state="cancel"] {{
+            color: #dc2626;
+            font-weight: bold;
+        }}
+
+        QPushButton.ActionButton[state="cancel"]:hover {{
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }}
+
         QPushButton#MicButton {{
             background-color: #2563eb;
             border: none;
@@ -119,6 +129,10 @@ def get_floating_bar_style(theme: str = "dark") -> str:
 
         QPushButton#MicButton[state="success"] {{
             background-color: #16a34a;
+        }}
+
+        QPushButton#MicButton[state="cancelled"] {{
+            background-color: #ef4444;
         }}
 
         QToolTip {{
@@ -177,6 +191,16 @@ def get_floating_bar_style(theme: str = "dark") -> str:
             color: #ffffff;
         }}
 
+        QPushButton.ActionButton[state="cancel"] {{
+            color: #ef4444;
+            font-weight: bold;
+        }}
+
+        QPushButton.ActionButton[state="cancel"]:hover {{
+            background-color: #3f1a1a;
+            color: #f87171;
+        }}
+
         QPushButton#MicButton {{
             background-color: #2563eb;
             border: none;
@@ -203,6 +227,10 @@ def get_floating_bar_style(theme: str = "dark") -> str:
 
         QPushButton#MicButton[state="success"] {{
             background-color: #16a34a;
+        }}
+
+        QPushButton#MicButton[state="cancelled"] {{
+            background-color: #ef4444;
         }}
 
         QToolTip {{

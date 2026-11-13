@@ -44,7 +44,8 @@ class VoiceTyperApp:
             self.config,
             on_mic_click=self.trigger_recording,
             on_settings_click=self.open_settings,
-            on_history_click=self.toggle_output_window
+            on_history_click=self.toggle_output_window,
+            on_cancel_click=self.speech_engine.cancel
         )
 
         # 5. System Tray
@@ -53,7 +54,8 @@ class VoiceTyperApp:
             self.floating_bar,
             on_mic_trigger=self.trigger_recording,
             on_settings_trigger=self.open_settings,
-            on_history_trigger=self.toggle_output_window
+            on_history_trigger=self.toggle_output_window,
+            on_cancel_trigger=self.speech_engine.cancel
         )
 
         self._connect_signals()
@@ -69,10 +71,14 @@ class VoiceTyperApp:
         # Custom / Fallback Hotkey (Ctrl + Alt + B) -> Toggle Recording
         self.hotkey_listener.toggle_triggered.connect(self.speech_engine.toggle_recording)
 
+        # Escape (Esc) / Interrupt Hotkey -> Cancel Recording or Processing
+        self.hotkey_listener.cancel_triggered.connect(self.speech_engine.cancel)
+
         # Speech Engine state transitions -> Floating Bar updates
         self.speech_engine.listening_started.connect(self.floating_bar.set_listening)
         self.speech_engine.processing_started.connect(self.floating_bar.set_processing)
         self.speech_engine.transcription_success.connect(self.floating_bar.set_success)
+        self.speech_engine.transcription_cancelled.connect(self.floating_bar.set_cancelled)
         self.speech_engine.error_occurred.connect(self.floating_bar.set_error)
 
         # Also append output directly to the dedicated Output History Window

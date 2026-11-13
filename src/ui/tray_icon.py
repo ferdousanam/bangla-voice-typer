@@ -28,7 +28,7 @@ def create_default_tray_icon():
     return QIcon(pixmap)
 
 class SystemTray(QSystemTrayIcon):
-    def __init__(self, app, floating_bar, on_mic_trigger=None, on_settings_trigger=None, on_history_trigger=None):
+    def __init__(self, app, floating_bar, on_mic_trigger=None, on_settings_trigger=None, on_history_trigger=None, on_cancel_trigger=None):
         super().__init__()
         self.app = app
         self.floating_bar = floating_bar
@@ -36,6 +36,7 @@ class SystemTray(QSystemTrayIcon):
         self.on_mic_trigger = on_mic_trigger
         self.on_settings_trigger = on_settings_trigger
         self.on_history_trigger = on_history_trigger
+        self.on_cancel_trigger = on_cancel_trigger
 
         self.setIcon(create_default_tray_icon())
         self.setToolTip("বাংলা ভয়েস টাইপার (Bangla Voice Typer)")
@@ -50,6 +51,10 @@ class SystemTray(QSystemTrayIcon):
         action_mic = self.menu.addAction("🎙️ ভয়েস টাইপিং শুরু করুন")
         if self.on_mic_trigger:
             action_mic.triggered.connect(self.on_mic_trigger)
+
+        action_cancel = self.menu.addAction("🚫 টাইপিং বাতিল করুন (Esc)")
+        if self.on_cancel_trigger:
+            action_cancel.triggered.connect(self.on_cancel_trigger)
 
         action_toggle_bar = self.menu.addAction("👁️ ফ্লোটিং বার দেখান / লুকান")
         action_toggle_bar.triggered.connect(self._toggle_bar)

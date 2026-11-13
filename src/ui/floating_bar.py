@@ -24,13 +24,15 @@ def format_hotkey_label(hotkey_str: str) -> str:
     return " + ".join(clean_parts)
 
 class FloatingBar(QWidget):
-    def __init__(self, config_manager, on_mic_click=None, on_settings_click=None, on_history_click=None):
+    def __init__(self, config_manager, on_mic_click=None, on_settings_click=None, on_history_click=None, on_cancel_click=None):
         super().__init__()
         self.config = config_manager
         self.on_mic_click = on_mic_click
         self.on_settings_click = on_settings_click
         self.on_history_click = on_history_click
+        self.on_cancel_click = on_cancel_click
 
+        self._is_active = False
         self._drag_pos = QPoint()
         self._is_dragging = False
 
@@ -115,12 +117,12 @@ class FloatingBar(QWidget):
             self.btn_settings.clicked.connect(lambda: self.on_settings_click())
         container_layout.addWidget(self.btn_settings)
 
-        # Minimize to Tray button
+        # Minimize to Tray / Cancel button
         self.btn_close = QPushButton("✕")
         self.btn_close.setProperty("class", "ActionButton")
         self.btn_close.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.btn_close.setToolTip("ট্রে-তে লুকিয়ে রাখুন")
-        self.btn_close.clicked.connect(self.hide)
+        self.btn_close.clicked.connect(self._on_close_clicked)
         container_layout.addWidget(self.btn_close)
 
         # Soft drop shadow
@@ -131,6 +133,16 @@ class FloatingBar(QWidget):
         self.container.setGraphicsEffect(shadow)
 
         main_layout.addWidget(self.container)
+
+    def _on_close_clicked(self):
+        """If recording or processing, clicking ✕ acts as Cancel. Otherwise hides to tray."""
+        if self._is_active:
+            if self.on_cancel_click:
+                self.on_cancel_click()
+            else:
+                self.set_cancelled()
+        else:
+            self.hide()
 
     def _set_mic_state(self, state: str, icon: str):
         self.btn_mic.setText(icon)
@@ -143,46 +155,83 @@ class FloatingBar(QWidget):
         return (
             f"কীবোর্ড শর্টকাট:\n"
             f"• শুরু করতে: Win + Space (পরপর ২ বার) অথবা {hotkey_name}\n"
-            f"• থামাতে: Win + Space (১ বার)"
+            f"• থামাতে: Win + Space (১ বার)\n"
+            f"• বাতিল করতে: Esc (যেকোনো সময়)"
         )
 
     def set_listening(self):
+        self._is_active = True
         self.show_widget_if_hidden()
         self._set_mic_state("recording", "⏹️")
         self.btn_mic.setToolTip("রেকর্ডিং থামাতে ক্লিক করুন (Win + Space)")
-        self.btn_hotkey.setToolTip("থামাতে: Win + Space (১ বার চাপুন) অথবা ⏹️ বাটনে ক্লিক করুন")
+        self.btn_hotkey.setToolTip("থামাতে: Win + Space (১ বার চাপুন) অথবা ⏹️ বাটনে ক্লিক করুন\nবাতিল করতে: Esc চাপুন বা ✕ ক্লিক করুন")
+        self.btn_close.setToolTip("রেকর্ডিং বাতিল করুন (Esc)")
+        self.btn_close.setProperty("state", "cancel")
+        self.btn_close.style().unpolish(self.btn_close)
+        self.btn_close.style().polish(self.btn_close)
         self.status_label.setText("শুনছি...")
-        self.status_label.setToolTip("কথা বলা শেষ হলে Win + Space চাপুন বা ⏹️ ক্লিক করুন")
+        self.status_label.setToolTip("কথা বলা শেষ হলে Win + Space চাপুন বা ⏹️ ক্লিক করুন\nবাতিল করতে Esc চাপুন বা ✕ ক্লিক করুন")
         self.status_label.setStyleSheet("color: #dc2626; font-weight: bold;")
 
     def set_processing(self):
+        self._is_active = True
         self._set_mic_state("processing", "⏳")
-        self.btn_mic.setToolTip("টেক্সটে রূপান্তর হচ্ছে...")
+        self.btn_mic.setToolTip("রূপান্তর বাতিল করতে ক্লিক করুন (Esc)")
+        self.btn_close.setToolTip("রূপান্তর বাতিল করুন (Esc)")
+        self.btn_close.setProperty("state", "cancel")
+        self.btn_close.style().unpolish(self.btn_close)
+        self.btn_close.style().polish(self.btn_close)
         self.status_label.setText("রূপান্তর...")
+        self.status_label.setToolTip("টেক্সটে রূপান্তর হচ্ছে...\nবাতিল করতে ⏳ বা ✕ বাটনে চাপুন (বা Esc)")
         self.status_label.setStyleSheet("color: #d97706; font-weight: bold;")
 
     def set_success(self, _text=""):
         """Displays completion status without inserting full text to prevent resizing"""
+        self._is_active = False
         self._set_mic_state("success", "✓")
+        self.btn_close.setProperty("state", "")
+        self.btn_close.style().unpolish(self.btn_close)
+        self.btn_close.style().polish(self.btn_close)
         self.status_label.setText("সম্পন্ন ✓")
         self.status_label.setStyleSheet("color: #16a34a; font-weight: bold;")
         QTimer.singleShot(1800, self.reset_to_idle)
 
+    def set_cancelled(self):
+        """Displays cancellation status and smoothly resets to idle"""
+        self._is_active = False
+        self._set_mic_state("cancelled", "🚫")
+        self.btn_close.setProperty("state", "")
+        self.btn_close.style().unpolish(self.btn_close)
+        self.btn_close.style().polish(self.btn_close)
+        self.status_label.setText("বাতিল")
+        self.status_label.setToolTip("ভয়েস টাইপিং বাতিল করা হয়েছে")
+        self.status_label.setStyleSheet("color: #ef4444; font-weight: bold;")
+        QTimer.singleShot(1400, self.reset_to_idle)
+
     def set_error(self, message):
+        self._is_active = False
         self._set_mic_state("idle", "⚠️")
+        self.btn_close.setProperty("state", "")
+        self.btn_close.style().unpolish(self.btn_close)
+        self.btn_close.style().polish(self.btn_close)
         self.status_label.setText("সমস্যা ⚠️")
         self.status_label.setToolTip(message)
         self.status_label.setStyleSheet("color: #dc2626; font-weight: bold;")
         QTimer.singleShot(2500, self.reset_to_idle)
 
     def reset_to_idle(self):
+        self._is_active = False
         self._set_mic_state("idle", "🎤")
         self.btn_mic.setToolTip("ভয়েস টাইপিং শুরু করতে Win + Double Space চাপুন")
         self.btn_hotkey.setToolTip(self._get_hotkey_tooltip())
+        self.btn_close.setToolTip("ট্রে-তে লুকিয়ে রাখুন")
+        self.btn_close.setProperty("state", "")
+        self.btn_close.style().unpolish(self.btn_close)
+        self.btn_close.style().polish(self.btn_close)
 
         self.status_label.setText("প্রস্তুত")
         self.status_label.setStyleSheet("")
-        self.status_label.setToolTip("শুরু: Win + Space দুবার চাপুন | থামাতে: Win + Space একবার চাপুন")
+        self.status_label.setToolTip("শুরু: Win + Space দুবার চাপুন | থামাতে: Win + Space একবার চাপুন | বাতিল: Esc")
 
         if self.config.get("auto_hide_widget", False):
             self.hide()

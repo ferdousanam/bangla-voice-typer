@@ -38,6 +38,7 @@ class HotkeyListener(QObject):
     start_triggered = pyqtSignal()
     stop_triggered = pyqtSignal()
     toggle_triggered = pyqtSignal()
+    cancel_triggered = pyqtSignal()
 
     def __init__(self, config_manager, speech_engine=None):
         super().__init__()
@@ -95,7 +96,17 @@ class HotkeyListener(QObject):
         self._setup_custom_hotkey()
 
     def _on_press(self, key):
-        # 1. Feed canonical key to pynput HotKey engine
+        # 1. Handle Escape (Esc) to cancel recording or processing at any time
+        if key == keyboard.Key.esc:
+            is_rec = self.speech_engine.is_recording if self.speech_engine else False
+            is_proc = self.speech_engine.is_processing if self.speech_engine else False
+            if is_rec or is_proc:
+                self.logger.info("Escape key pressed during active recognition/processing -> triggering cancel")
+                self.cancel_triggered.emit()
+                self.last_win_space_time = 0
+                return
+
+        # 2. Feed canonical key to pynput HotKey engine
         if self.listener and self.custom_hotkey:
             try:
                 canonical = self.listener.canonical(key)
@@ -103,19 +114,25 @@ class HotkeyListener(QObject):
             except Exception:
                 pass
 
-        # 2. Track Windows (Super/Cmd) key state
+        # 3. Track Windows (Super/Cmd) key state
         if key in (keyboard.Key.cmd, keyboard.Key.cmd_l, keyboard.Key.cmd_r):
             self.win_down = True
 
-        # 3. Handle Natural Win + Space Dictation Workflow
+        # 4. Handle Natural Win + Space Dictation Workflow
         elif key == keyboard.Key.space and self.win_down:
             now = time.time()
             is_rec = self.speech_engine.is_recording if self.speech_engine else False
+            is_proc = self.speech_engine.is_processing if self.speech_engine else False
 
             if is_rec:
                 # When recording: Win + Single Space STOPS recording & types text
                 self.logger.info("Win + Space dictation shortcut triggered: STOP recording")
                 self.stop_triggered.emit()
+                self.last_win_space_time = 0
+            elif is_proc:
+                # When processing/converting: Win + Space CANCELS recognition
+                self.logger.info("Win + Space shortcut triggered during processing: CANCEL recognition")
+                self.cancel_triggered.emit()
                 self.last_win_space_time = 0
             else:
                 # When idle: Win + Double Space STARTS recording

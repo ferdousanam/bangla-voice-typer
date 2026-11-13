@@ -29,3 +29,11 @@ def play_error_sound(enabled=True):
     """Play low error tone"""
     if enabled:
         threading.Thread(target=_beep_async, args=(400, 250), daemon=True).start()
+
+def play_cancel_sound(enabled=True):
+    """Play subtle descending tone when voice typing is cancelled / interrupted"""
+    if enabled:
+        def _cancel():
+            _beep_async(700, 70)
+            _beep_async(450, 90)
+        threading.Thread(target=_cancel, daemon=True).start()

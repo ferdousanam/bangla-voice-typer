@@ -659,6 +659,18 @@ class SettingsDialog(QDialog):
             lbl_badge
         )
         card_layout.addWidget(row_win)
+        card_layout.addWidget(self._create_separator())
+
+        # Escape cancel shortcut badge
+        lbl_esc_badge = QLabel("Esc")
+        lbl_esc_badge.setObjectName("KbdBadge")
+
+        row_esc = self._create_setting_row(
+            "তাৎক্ষণিক বাতিল (Interrupt / Cancel)",
+            "রেকর্ডিং বা রূপান্তর চলার যেকোনো মুহূর্তে Esc চাপলে টাইপিং সাথে সাথে বাতিল হয়ে যাবে।",
+            lbl_esc_badge
+        )
+        card_layout.addWidget(row_esc)
 
         layout.addWidget(card)
 
@@ -667,9 +679,10 @@ class SettingsDialog(QDialog):
         lbl_guide = QLabel(
             "📌 <b>কীভাবে ব্যবহার করবেন:</b><br>"
             "১. যেকোনো লেখার জায়গায় (Notepad, Word, Browser, Chat) কার্সর রাখুন।<br>"
-            "২. <code>Ctrl + Shift + B</code> চাপুন (শব্দ হবে এবং ফ্লোটিং বার লাল হয়ে রেকর্ড শুরু করবে)।<br>"
+            "২. <code>Ctrl + Shift + B</code> চাপুন (অথবা <code>Win + Space</code> পরপর ২ বার চাপুন)।<br>"
             "৩. স্বাভাবিকভাবে বাংলায় কথা বলুন।<br>"
-            "৪. কথা শেষ হলে আবার <code>Ctrl + Shift + B</code> চাপুন। লেখা স্বয়ংক্রিয়ভাবে নির্ভুলভাবে টাইপ হয়ে যাবে!"
+            "৪. কথা শেষ হলে আবার <code>Ctrl + Shift + B</code> (বা <code>Win + Space</code> ১ বার) চাপুন। লেখা স্বয়ংক্রিয়ভাবে টাইপ হয়ে যাবে!<br>"
+            "৫. <b>যেকোনো সময় বাতিল করতে:</b> রেকর্ডিং বা রূপান্তর চলার যেকোনো মুহূর্তে কীবোর্ডের <code>Esc</code> চাপুন অথবা ফ্লোটিং বারে ✕ বাটনে চাপুন। সাথে সাথে টাইপিং বাতিল হয়ে যাবে।"
         )
         lbl_guide.setObjectName("InfoBox")
         lbl_guide.setWordWrap(True)
