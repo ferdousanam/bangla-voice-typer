@@ -18,6 +18,9 @@ jobs:
   build-windows:
     name: Build Windows Portable Package
     runs-on: windows-latest
+    env:
+      PYTHONIOENCODING: 'utf-8'
+      PYTHONUTF8: '1'
 
     steps:
       - name: Checkout repository
@@ -72,4 +75,4 @@ jobs:
             - **Ctrl + Alt + B**: অল্টারনেটিভ টগল শর্টকাট।
 
             ### ⚙️ কনফিগারেশন:
-            - ফ্লোটিং বারের গিয়ার (⚙️ Settings) আইকনে ক্লিক করে আপনার **Gemini API Key** প্রদান করুন।
+            - ফ্লোটিং বারের গিয়ার (Settings) আইকনে ক্লিক করে আপনার **Gemini API Key** প্রদান করুন।

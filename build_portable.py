@@ -10,12 +10,22 @@ import subprocess
 import zipfile
 from pathlib import Path
 
+# Force UTF-8 on Windows consoles to prevent cp1252 UnicodeEncodeError
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 ROOT_DIR = Path(__file__).resolve().parent
 DIST_DIR = ROOT_DIR / "dist"
 BUILD_DIR = ROOT_DIR / "build"
 RELEASE_DIR = DIST_DIR / "BanglaVoiceTyper"
 ASSETS_DIR = ROOT_DIR / "src" / "ui" / "assets"
 ICON_PATH = ASSETS_DIR / "app_icon.ico"
+
+
 def get_version() -> str:
     """Resolve release version from CLI args, GitHub ref, environment or default"""
     for i, arg in enumerate(sys.argv):
@@ -26,6 +36,7 @@ def get_version() -> str:
         return ref.lstrip("v")
     return os.environ.get("RELEASE_VERSION", "1.0.0").strip().lstrip("v")
 
+
 VERSION = get_version()
 ZIP_NAME = f"BanglaVoiceTyper-Portable-v{VERSION}.zip"
 
@@ -35,7 +46,7 @@ def ensure_icon():
     if ICON_PATH.exists() and ICON_PATH.stat().st_size > 1000:
         return
 
-    print("🎨 Generating application icon...")
+    print("[INFO] Generating application icon...")
     ASSETS_DIR.mkdir(parents=True, exist_ok=True)
     try:
         from PyQt6.QtWidgets import QApplication
@@ -70,14 +81,14 @@ def ensure_icon():
             icon.addPixmap(pix)
 
         pix.save(str(ICON_PATH), "ICO")
-        print(f"✅ Icon created: {ICON_PATH}")
+        print(f"[OK] Icon created: {ICON_PATH}")
     except Exception as e:
-        print(f"⚠️ Warning: could not generate icon ({e}). Continuing without custom icon.")
+        print(f"[WARN] Could not generate icon ({e}). Continuing without custom icon.")
 
 
 def clean_previous_builds():
     """Clean previous build artifacts"""
-    print("🧹 Cleaning previous build artifacts...")
+    print("[CLEAN] Cleaning previous build artifacts...")
     for target in [BUILD_DIR, RELEASE_DIR, DIST_DIR / ZIP_NAME]:
         if target.is_dir():
             shutil.rmtree(target, ignore_errors=True)
@@ -90,7 +101,7 @@ def clean_previous_builds():
 
 def run_pyinstaller():
     """Runs PyInstaller with all required bundles and hooks"""
-    print("🚀 Packaging standalone binary with PyInstaller...")
+    print("[BUILD] Packaging standalone binary with PyInstaller...")
 
     pyinstaller_bin = sys.executable.replace("python.exe", "pyinstaller.exe")
     if not os.path.exists(pyinstaller_bin):
@@ -118,13 +129,13 @@ def run_pyinstaller():
     print(f"Running command: {' '.join(cmd)}\n")
     result = subprocess.run(cmd, cwd=str(ROOT_DIR))
     if result.returncode != 0:
-        print("\n❌ PyInstaller build failed!")
+        print("\n[ERROR] PyInstaller build failed!")
         sys.exit(result.returncode)
 
 
 def add_release_files():
     """Adds default configuration and portable guide to release directory"""
-    print("📝 Adding release metadata and default configuration...")
+    print("[CONFIG] Adding release metadata and default configuration...")
 
     # Default clean config.json
     default_config = (
@@ -152,7 +163,7 @@ def add_release_files():
     readme_content = (
         "==========================================================\n"
         "      বাংলা ভয়েস টাইপার (Bangla Voice Typer) - Portable\n"
-        "                    Version 1.0.0\n"
+        f"                    Version {VERSION}\n"
         "==========================================================\n\n"
         "এই সফটওয়্যারটি ১০০% পোর্টেবল (Portable)। এটি ব্যবহারের জন্য আপনার\n"
         "কম্পিউটারে Python বা কোনো অতিরিক্ত সফটওয়্যার ইনস্টল করার দরকার নেই।\n"
@@ -167,7 +178,7 @@ def add_release_files():
         "----------------------------------------------------------\n"
         "২. Gemini API Key সেটআপ (একবারই করতে হবে):\n"
         "----------------------------------------------------------\n"
-        "  - ফ্লোটিং বারে গিয়ার (⚙️ Settings) আইকনে ক্লিক করুন, অথবা টাস্কবারের\n"
+        "  - ফ্লোটিং বারে গিয়ার (Settings) আইকনে ক্লিক করুন, অথবা টাস্কবারের\n"
         "    'ব' আইকনে রাইট-ক্লিক করে 'সেটিংস' সিলেক্ট করুন।\n"
         "  - আপনার Gemini API Key টি পেস্ট করে 'সেভ করুন' চাপুন।\n"
         "  - আপনার সেটিংস স্বয়ংক্রিয়ভাবে এই ফোল্ডারের config.json এ সেভ থাকবে।\n\n"
@@ -188,14 +199,14 @@ def add_release_files():
         "==========================================================\n"
     )
     (RELEASE_DIR / "README_PORTABLE.txt").write_text(readme_content, encoding="utf-8")
-    print("✅ Release files added.")
+    print("[OK] Release files added.")
 
 
 def create_portable_zip():
     """Zips the portable folder for direct distribution"""
-    print("📦 Creating portable distribution zip archive...")
+    print("[ZIP] Creating portable distribution zip archive...")
     zip_path = DIST_DIR / ZIP_NAME
-    
+
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as zip_file:
         for file in RELEASE_DIR.rglob("*"):
             if file.is_file():
@@ -203,9 +214,9 @@ def create_portable_zip():
                 zip_file.write(file, arcname)
 
     size_mb = zip_path.stat().st_size / (1024 * 1024)
-    print(f"🎉 Portable release created successfully!")
-    print(f"📁 Portable Folder : {RELEASE_DIR}")
-    print(f"📦 Distribution Zip: {zip_path} ({size_mb:.1f} MB)")
+    print(f"[SUCCESS] Portable release created successfully!")
+    print(f"Folder : {RELEASE_DIR}")
+    print(f"Zip    : {zip_path} ({size_mb:.1f} MB)")
 
 
 def main():
@@ -217,7 +228,7 @@ def main():
     run_pyinstaller()
     add_release_files()
     create_portable_zip()
-    print("\n✅ All done! The portable package is ready to be used on any PC.")
+    print("\n[DONE] All done! The portable package is ready to be used on any PC.")
 
 
 if __name__ == "__main__":
