@@ -7,7 +7,7 @@ from src.config import ConfigManager
 from src.core.speech_engine import SpeechEngine
 from src.core.hotkey_listener import HotkeyListener
 from src.ui.floating_bar import FloatingBar
-from src.ui.tray_icon import SystemTray
+from src.ui.tray_icon import SystemTray, create_default_tray_icon
 from src.ui.settings_dialog import SettingsDialog
 from src.ui.output_window import OutputWindow
 
@@ -15,6 +15,9 @@ class VoiceTyperApp:
     def __init__(self):
         self.app = QApplication(sys.argv)
         self.app.setQuitOnLastWindowClosed(False)
+        self.app.setApplicationName("BanglaVoiceTyper")
+        self.app.setApplicationDisplayName("বাংলা ভয়েস টাইপার")
+        self.app.setWindowIcon(create_default_tray_icon())
 
         # High-clarity native font setup
         base_font = QFont("Segoe UI")

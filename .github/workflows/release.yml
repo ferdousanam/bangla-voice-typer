@@ -1,0 +1,75 @@
+name: Build & Release Portable App
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 1.0.0)'
+        required: false
+        default: '1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows Portable Package
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build Portable Release
+        env:
+          RELEASE_VERSION: ${{ github.event.inputs.version || github.ref_name }}
+        run: |
+          python build_portable.py
+
+      - name: Upload Artifact (Workflow Run Backup)
+        uses: actions/upload-artifact@v4
+        with:
+          name: BanglaVoiceTyper-Portable
+          path: dist/BanglaVoiceTyper-Portable-*.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        with:
+          name: Bangla Voice Typer ${{ github.event.inputs.version && format('v{0}', github.event.inputs.version) || github.ref_name }}
+          tag_name: ${{ github.event.inputs.version && format('v{0}', github.event.inputs.version) || github.ref_name }}
+          draft: false
+          prerelease: false
+          files: dist/BanglaVoiceTyper-Portable-*.zip
+          body: |
+            ## 🎙️ বাংলা ভয়েস টাইপার (Bangla Voice Typer) - Portable Release
+
+            উইন্ডোজের জন্য সম্পূর্ণ পোর্টেবল প্যাকেজ। ব্যবহার করার জন্য কোনো Python বা অতিরিক্ত সফটওয়্যার ইনস্টল করার প্রয়োজন নেই।
+
+            ### 🚀 ব্যবহারের নিয়ম:
+            1. নিচে থাকা `BanglaVoiceTyper-Portable-*.zip` ফাইলটি ডাউনলোড করুন।
+            2. জিপ ফাইলটি আনজিপ (Extract) করুন।
+            3. ফোল্ডারের ভেতর থাকা **`BanglaVoiceTyper.exe`** ফাইলে ডাবল-ক্লিক করুন।
+
+            ### ⌨️ শর্টকাট:
+            - **Win + Double Space**: ভয়েস রেকর্ডিং শুরু।
+            - **Win + Single Space**: রেকর্ডিং শেষ ও অটো-টাইপ।
+            - **Ctrl + Alt + B**: অল্টারনেটিভ টগল শর্টকাট।
+
+            ### ⚙️ কনফিগারেশন:
+            - ফ্লোটিং বারের গিয়ার (⚙️ Settings) আইকনে ক্লিক করে আপনার **Gemini API Key** প্রদান করুন।

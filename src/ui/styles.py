@@ -1,4 +1,5 @@
 import os
+import sys
 import winreg
 
 """
@@ -9,7 +10,18 @@ Optimized for high contrast, Segoe UI (English) & Nirmala UI/Kalpurush (Bengali)
 FONT_FAMILY = "'Segoe UI', 'Nirmala UI', 'Kalpurush', 'Vrinda', sans-serif"
 ENGLISH_FONT = "'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif"
 
-ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+def get_assets_dir() -> str:
+    """Resolve assets directory whether running from source or frozen in PyInstaller"""
+    if getattr(sys, "frozen", False):
+        base_dir = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+        for rel in [os.path.join("src", "ui", "assets"), "assets"]:
+            candidate = os.path.join(base_dir, rel)
+            if os.path.exists(candidate):
+                return candidate
+        return base_dir
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+
+ASSETS_DIR = get_assets_dir()
 CHECK_ICON = os.path.join(ASSETS_DIR, "check.svg").replace("\\", "/")
 CHEVRON_DOWN_LIGHT = os.path.join(ASSETS_DIR, "chevron-down.svg").replace("\\", "/")
 CHEVRON_DOWN_DARK = os.path.join(ASSETS_DIR, "chevron-down-dark.svg").replace("\\", "/")

@@ -1,7 +1,14 @@
 import json
 import os
+import sys
 
-CONFIG_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
+def get_base_dir() -> str:
+    """Returns directory of executable when frozen (portable), or project root in dev mode"""
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+CONFIG_FILE = os.path.join(get_base_dir(), "config.json")
 
 DEFAULT_CONFIG = {
     "engine": "gemini",
@@ -20,8 +27,8 @@ DEFAULT_CONFIG = {
 }
 
 class ConfigManager:
-    def __init__(self, filepath=CONFIG_FILE):
-        self.filepath = filepath
+    def __init__(self, filepath=None):
+        self.filepath = filepath or os.path.join(get_base_dir(), "config.json")
         self.config = self.load()
 
     def load(self):
