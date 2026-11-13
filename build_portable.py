@@ -144,7 +144,7 @@ def add_release_files():
         '    "gemini_api_key": "",\n'
         '    "gemini_model": "gemini-3.5-flash",\n'
         '    "theme": "system",\n'
-        '    "hotkey": "<ctrl>+<alt>+b",\n'
+        '    "hotkey": "ctrl+shift+b",\n'
         '    "language": "bn-BD",\n'
         '    "sound_feedback": true,\n'
         '    "always_on_top": true,\n'
@@ -188,7 +188,7 @@ def add_release_files():
         "  - Win + Double Space : ভয়েস রেকর্ডিং শুরু করুন।\n"
         "  - Win + Single Space : কথা বলা শেষে রেকর্ডিং বন্ধ করুন।\n"
         "                         (স্বয়ংক্রিয়ভাবে টেক্সট টাইপ হয়ে যাবে)\n"
-        "  - Ctrl + Alt + B     : অল্টারনেটিভ টগল শর্টকাট।\n\n"
+        "  - Ctrl + Shift + B   : অল্টারনেটিভ টগল শর্টকাট।\n\n"
         "----------------------------------------------------------\n"
         "English Instructions:\n"
         "----------------------------------------------------------\n"

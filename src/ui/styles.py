@@ -249,6 +249,18 @@ def get_settings_dialog_style(theme: str = "dark") -> str:
             margin-bottom: 4px;
         }}
 
+        QLabel#InfoHint {{
+            color: #0284c7;
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 6px;
+            padding: 7px 12px;
+            font-size: 11px;
+            font-family: {FONT_FAMILY};
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }}
+
         /* Modern Tabs (Light Mode) */
         QTabWidget::pane {{
             border: 1px solid #e2e8f0;
@@ -416,6 +428,18 @@ def get_settings_dialog_style(theme: str = "dark") -> str:
             color: #94a3b8;
             font-size: 13px;
             font-family: {FONT_FAMILY};
+            margin-bottom: 4px;
+        }}
+
+        QLabel#InfoHint {{
+            color: #38bdf8;
+            background-color: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            border-radius: 6px;
+            padding: 7px 12px;
+            font-size: 11px;
+            font-family: {FONT_FAMILY};
+            margin-top: 4px;
             margin-bottom: 4px;
         }}
 

@@ -28,6 +28,13 @@ class SpeechEngine(QObject):
         self.is_recording = False
         self.is_processing = False
         self._lock = threading.Lock()
+        self._apply_settings()
+
+    def _apply_settings(self):
+        """Apply dynamic configuration updates to speech recognizer"""
+        if self.config:
+            self.recognizer.energy_threshold = self.config.get("energy_threshold", 300)
+            self.recognizer.pause_threshold = self.config.get("pause_threshold", 0.8)
 
     def start_recording(self):
         """Starts recording if idle"""

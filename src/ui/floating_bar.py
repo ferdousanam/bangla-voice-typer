@@ -88,8 +88,8 @@ class FloatingBar(QWidget):
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         container_layout.addWidget(self.status_label)
 
-        # Hotkey badge (Ctrl + Alt + B)
-        self.hotkey_badge = QLabel("Ctrl + Alt + B")
+        # Hotkey badge (Ctrl + Shift + B)
+        self.hotkey_badge = QLabel("Ctrl + Shift + B")
         self.hotkey_badge.setObjectName("HotkeyBadge")
         self.hotkey_badge.setFixedWidth(98)
         self.hotkey_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)

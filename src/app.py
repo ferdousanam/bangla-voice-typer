@@ -20,8 +20,7 @@ class VoiceTyperApp:
         self.app.setWindowIcon(create_default_tray_icon())
 
         # High-clarity native font setup
-        base_font = QFont("Segoe UI")
-        base_font.setPointSize(10)
+        base_font = QFont("Segoe UI", 10)
         base_font.setStyleHint(QFont.StyleHint.SansSerif)
         self.app.setFont(base_font)
 
@@ -34,6 +33,7 @@ class VoiceTyperApp:
 
         # 3. Output Window (Separate Window for Transcription History)
         self.output_window = OutputWindow(self.config)
+        self.settings_dialog = None
 
         # 4. Floating Bar (Strictly Fixed Size)
         self.floating_bar = FloatingBar(
@@ -87,8 +87,20 @@ class VoiceTyperApp:
         self.speech_engine.trigger_transcription()
 
     def open_settings(self):
-        dialog = SettingsDialog(self.config, on_saved_callback=self._on_settings_saved, parent=self.floating_bar)
-        dialog.exec()
+        if self.settings_dialog is not None and self.settings_dialog.isVisible():
+            self.settings_dialog.showNormal()
+            self.settings_dialog.raise_()
+            self.settings_dialog.activateWindow()
+            return
+
+        self.settings_dialog = SettingsDialog(
+            self.config,
+            on_saved_callback=self._on_settings_saved,
+            parent=None
+        )
+        self.settings_dialog.show()
+        self.settings_dialog.raise_()
+        self.settings_dialog.activateWindow()
 
     def toggle_output_window(self):
         if self.output_window.isVisible():

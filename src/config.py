@@ -15,7 +15,7 @@ DEFAULT_CONFIG = {
     "gemini_api_key": "",
     "gemini_model": "gemini-3.5-flash",
     "theme": "system",
-    "hotkey": "<ctrl>+<alt>+b",
+    "hotkey": "ctrl+shift+b",
     "language": "bn-BD",
     "sound_feedback": True,
     "always_on_top": True,

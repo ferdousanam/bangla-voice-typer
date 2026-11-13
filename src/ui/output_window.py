@@ -31,7 +31,6 @@ def get_output_window_style(theme: str) -> str:
             border-radius: 10px;
             padding: 10px;
             font-size: 14px;
-            line-height: 1.5;
             font-family: {FONT_FAMILY};
         }}
         QPushButton.ToolBtn {{
@@ -83,7 +82,6 @@ def get_output_window_style(theme: str) -> str:
             border-radius: 10px;
             padding: 10px;
             font-size: 14px;
-            line-height: 1.5;
             font-family: {FONT_FAMILY};
         }}
         QPushButton.ToolBtn {{

@@ -12,7 +12,8 @@ class SettingsDialog(QDialog):
         self.config = config_manager
         self.on_saved_callback = on_saved_callback
         self.setWindowTitle("সেটিংস - বাংলা ভয়েস টাইপার")
-        self.setFixedWidth(520)
+        self.setFixedWidth(550)
+        self.setModal(False)
         self.apply_theme()
         self._init_ui()
 
@@ -72,44 +73,86 @@ class SettingsDialog(QDialog):
     def _create_ai_tab(self) -> QWidget:
         widget = QWidget()
         widget.setObjectName("TabContent")
-        form = QFormLayout(widget)
-        form.setSpacing(14)
-        form.setContentsMargins(8, 12, 8, 12)
-        form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
+        layout = QVBoxLayout(widget)
+        layout.setSpacing(14)
+        layout.setContentsMargins(8, 12, 8, 12)
+
+        # Engine selector
+        top_form = QFormLayout()
+        top_form.setSpacing(14)
+        top_form.setContentsMargins(0, 0, 0, 0)
+        top_form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
 
         self.combo_engine = QComboBox()
-        self.combo_engine.addItem("🚀 Gemini Flash (স্মার্ট এআই)", "gemini")
-        self.combo_engine.addItem("🎙️ Google STT (ফ্রি, বেসিক)", "google")
-        
+        self.combo_engine.addItem("🚀 Gemini Flash (স্মার্ট এআই — অটো বিরামচিহ্নসহ)", "gemini")
+        self.combo_engine.addItem("🎙️ Google STT (ফ্রি, বেসিক — কোনো কী লাগবে না)", "google")
+
         current_engine = self.config.get("engine", "gemini")
         idx_engine = self.combo_engine.findData(current_engine)
         if idx_engine >= 0:
             self.combo_engine.setCurrentIndex(idx_engine)
-        form.addRow("ইঞ্জিন নির্বাচন:", self.combo_engine)
+        top_form.addRow("ইঞ্জিন নির্বাচন:", self.combo_engine)
+        layout.addLayout(top_form)
+
+        # 1. Gemini AI Config Container (Visible only when Gemini is selected)
+        self.gemini_container = QWidget()
+        gemini_form = QFormLayout(self.gemini_container)
+        gemini_form.setSpacing(14)
+        gemini_form.setContentsMargins(0, 4, 0, 0)
+        gemini_form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
 
         self.combo_gemini_model = QComboBox()
         self.combo_gemini_model.addItem("gemini-3.5-flash (সর্বশেষ স্থিতিশীল ও দ্রুত)", "gemini-3.5-flash")
         self.combo_gemini_model.addItem("gemini-3.1-flash-lite (হালকা ও দ্রুত)", "gemini-3.1-flash-lite")
         self.combo_gemini_model.addItem("gemini-3.8-flash", "gemini-3.8-flash")
-        
+
         current_model = self.config.get("gemini_model", "gemini-3.5-flash")
         idx_model = self.combo_gemini_model.findData(current_model)
         if idx_model >= 0:
             self.combo_gemini_model.setCurrentIndex(idx_model)
-        form.addRow("Gemini মডেল:", self.combo_gemini_model)
+        gemini_form.addRow("Gemini মডেল:", self.combo_gemini_model)
 
         self.input_api_key = QLineEdit()
         self.input_api_key.setEchoMode(QLineEdit.EchoMode.PasswordEchoOnEdit)
         self.input_api_key.setPlaceholderText("AIzaSy... (aistudio.google.com থেকে ফ্রি কি দিন)")
         self.input_api_key.setText(self.config.get("gemini_api_key", ""))
-        form.addRow("Gemini API Key:", self.input_api_key)
+        gemini_form.addRow("Gemini API Key:", self.input_api_key)
 
         tip_label = QLabel('<a href="https://aistudio.google.com/apikey" style="color: #38bdf8; text-decoration: none;">🔗 Google AI Studio থেকে ফ্রি API Key সংগ্রহ করুন</a>')
         tip_label.setOpenExternalLinks(True)
         tip_label.setStyleSheet("font-size: 12px; padding-top: 4px;")
-        form.addRow("", tip_label)
+        gemini_form.addRow("", tip_label)
+
+        layout.addWidget(self.gemini_container)
+
+        # 2. Google STT Notice Container (Visible only when Google STT is selected)
+        self.stt_container = QWidget()
+        stt_layout = QVBoxLayout(self.stt_container)
+        stt_layout.setContentsMargins(0, 4, 0, 4)
+
+        stt_notice = QLabel(
+            "✅ Google STT সিলেক্ট করা আছে।\n\n"
+            "এই মোডে কোনো API Key বা এআই মডেল কনফিগারেশনের প্রয়োজন নেই। "
+            "ইন্টারনেট কানেকশন থাকলেই সরাসরি কোনো সীমাবদ্ধতা ছাড়াই সাধারণ বাংলা ভয়েস টাইপিং চলবে।"
+        )
+        stt_notice.setObjectName("InfoHint")
+        stt_notice.setWordWrap(True)
+        stt_layout.addWidget(stt_notice)
+
+        layout.addWidget(self.stt_container)
+        layout.addStretch()
+
+        # Connect dropdown change to update visibility
+        self.combo_engine.currentIndexChanged.connect(self._update_engine_visibility)
+        self._update_engine_visibility()
 
         return widget
+
+    def _update_engine_visibility(self):
+        """Conditionally show/hide AI model configuration based on chosen engine"""
+        is_gemini = self.combo_engine.currentData() == "gemini"
+        self.gemini_container.setVisible(is_gemini)
+        self.stt_container.setVisible(not is_gemini)
 
     def _create_general_tab(self) -> QWidget:
         widget = QWidget()
@@ -137,19 +180,35 @@ class SettingsDialog(QDialog):
 
         # Hotkey selection
         self.combo_hotkey = QComboBox()
-        self.combo_hotkey.setEditable(True)
-        presets = [
-            "<ctrl>+<alt>+b",
-            "<alt>+<shift>+b",
-            "<ctrl>+<alt>+v",
-            "<ctrl>+<shift>+b"
+        self.hotkey_presets = [
+            ("Ctrl + Shift + B (ডিফল্ট)", "ctrl+shift+b"),
+            ("Ctrl + Alt + B", "ctrl+alt+b"),
+            ("Ctrl + Alt + V", "ctrl+alt+v"),
+            ("Alt + Shift + B", "alt+shift+b"),
+            ("Ctrl + Alt + Space", "ctrl+alt+space")
         ]
-        self.combo_hotkey.addItems(presets)
-        current_hotkey = self.config.get("hotkey", "<ctrl>+<alt>+b")
-        if current_hotkey not in presets:
-            self.combo_hotkey.insertItem(0, current_hotkey)
-        self.combo_hotkey.setCurrentText(current_hotkey)
-        form.addRow("গ্লোবাল শর্টকাট:", self.combo_hotkey)
+        for label, val in self.hotkey_presets:
+            self.combo_hotkey.addItem(label, val)
+
+        current_hotkey = str(self.config.get("hotkey", "ctrl+shift+b")).lower().replace("<", "").replace(">", "").strip()
+        idx_hotkey = -1
+        for i, (_, val) in enumerate(self.hotkey_presets):
+            if val == current_hotkey:
+                idx_hotkey = i
+                break
+
+        if idx_hotkey >= 0:
+            self.combo_hotkey.setCurrentIndex(idx_hotkey)
+        else:
+            self.combo_hotkey.addItem(f"কাস্টম ({current_hotkey})", current_hotkey)
+            self.combo_hotkey.setCurrentIndex(self.combo_hotkey.count() - 1)
+
+        form.addRow("টগল শর্টকাট:", self.combo_hotkey)
+
+        lbl_hint = QLabel("💡 প্রাথমিক শর্টকাট: Win + Space (২ বার চাপলে শুরু, ১ বার চাপলে বন্ধ)")
+        lbl_hint.setObjectName("InfoHint")
+        lbl_hint.setWordWrap(True)
+        form.addRow(lbl_hint)
 
         # Language selection
         self.combo_lang = QComboBox()
@@ -188,9 +247,9 @@ class SettingsDialog(QDialog):
         self.chk_autohide.setChecked(self.config.get("auto_hide_widget", False))
         layout.addWidget(self.chk_autohide)
 
-        note_label = QLabel("💡 <b>স্মার্ট মোড সক্রিয়:</b> কথা থামলেও রেকর্ড অটোমেটিক বন্ধ হবে না। পুরো কথা শেষ হলে তবেই <code>Ctrl + Alt + B</code> বা ⏹️ বাটন চাপুন।")
+        note_label = QLabel("💡 <b>স্মার্ট মোড সক্রিয়:</b> কথা থামলেও রেকর্ড অটোমেটিক বন্ধ হবে না। পুরো কথা শেষ হলে তবেই <code>Ctrl + Shift + B</code> বা ⏹️ বাটন চাপুন।")
         note_label.setWordWrap(True)
-        note_label.setStyleSheet("color: #38bdf8; font-size: 13px; line-height: 1.4; padding: 6px 0;")
+        note_label.setStyleSheet("color: #38bdf8; font-size: 13px; padding: 6px 0;")
         layout.addWidget(note_label)
 
         # Tuning sub-form
@@ -212,7 +271,8 @@ class SettingsDialog(QDialog):
         new_gemini_model = self.combo_gemini_model.currentData()
         new_api_key = self.input_api_key.text().strip()
         new_theme = self.combo_theme.currentData()
-        new_hotkey = self.combo_hotkey.currentText().strip().lower()
+        raw_hotkey = self.combo_hotkey.currentData() or self.combo_hotkey.currentText()
+        new_hotkey = str(raw_hotkey).lower().replace("<", "").replace(">", "").strip()
         new_lang = self.combo_lang.currentData()
         sound_feedback = self.chk_sound.isChecked()
         always_on_top = self.chk_top.isChecked()
