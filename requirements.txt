@@ -1,0 +1,6 @@
+SpeechRecognition>=3.10.0
+pyaudio>=0.2.14
+pyperclip>=1.8.2
+pynput>=1.7.6
+PyQt6>=6.7.0
+google-genai>=1.0.0

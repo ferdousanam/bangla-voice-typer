@@ -1,0 +1,2 @@
+"""Bangla Voice Typer Package"""
+__version__ = "2.0.0"
