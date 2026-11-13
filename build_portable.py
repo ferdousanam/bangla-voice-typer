@@ -148,7 +148,7 @@ def add_release_files():
         '{\n'
         '    "engine": "gemini",\n'
         '    "gemini_api_key": "",\n'
-        '    "gemini_model": "gemini-3.5-flash",\n'
+        '    "gemini_model": "gemini-3.1-flash-lite",\n'
         '    "theme": "system",\n'
         '    "hotkey": "ctrl+shift+b",\n'
         '    "language": "bn-BD",\n'

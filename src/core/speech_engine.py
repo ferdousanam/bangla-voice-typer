@@ -91,10 +91,10 @@ class SpeechEngine(QObject):
         from google.genai import types
 
         wav_bytes = audio.get_wav_data(convert_rate=16000, convert_width=2)
-        # Google Gemini API minimum deadline is 10s. Set client timeout to 10s for fast fallback.
+        # Google Gemini API client timeout (15s for fast fallback and responsive experience)
         client = genai.Client(
             api_key=api_key,
-            http_options=types.HttpOptions(timeout=10000)
+            http_options=types.HttpOptions(timeout=15000)
         )
 
         prompt = (
@@ -108,7 +108,7 @@ class SpeechEngine(QObject):
             "4. Return ONLY the transcribed text. Do NOT add notes, explanations, or quotes."
         )
 
-        candidates = [model_name, "gemini-3.5-flash", "gemini-3.1-flash-lite"]
+        candidates = [model_name, "gemini-3.1-flash-lite", "gemini-3.5-flash"]
         seen = set()
         models_to_try = [m for m in candidates if m and not (m in seen or seen.add(m))]
 
@@ -136,7 +136,7 @@ class SpeechEngine(QObject):
         language = self.config.get("language", "bn-BD")
         engine_mode = self.config.get("engine", "gemini")
         gemini_key = self.config.get("gemini_api_key", "").strip()
-        gemini_model = self.config.get("gemini_model", "gemini-3.5-flash")
+        gemini_model = self.config.get("gemini_model", "gemini-3.1-flash-lite")
 
         p = pyaudio.PyAudio()
         stream = None

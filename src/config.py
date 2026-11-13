@@ -32,7 +32,7 @@ CONFIG_FILE = os.path.join(get_base_dir(), "config.json")
 DEFAULT_CONFIG = {
     "engine": "gemini",
     "gemini_api_key": "",
-    "gemini_model": "gemini-3.5-flash",
+    "gemini_model": "gemini-3.1-flash-lite",
     "theme": "system",
     "hotkey": "ctrl+shift+b",
     "language": "bn-BD",

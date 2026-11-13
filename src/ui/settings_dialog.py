@@ -343,11 +343,11 @@ class SettingsDialog(QDialog):
         # Model Selector
         self.combo_gemini_model = QComboBox()
         self.combo_gemini_model.setMinimumWidth(320)
-        self.combo_gemini_model.addItem("gemini-3.5-flash (সর্বশেষ স্থিতিশীল ও দ্রুত)", "gemini-3.5-flash")
-        self.combo_gemini_model.addItem("gemini-3.1-flash-lite (হালকা ও দ্রুততম)", "gemini-3.1-flash-lite")
-        self.combo_gemini_model.addItem("gemini-3.8-flash (উন্নত প্রিভিউ)", "gemini-3.8-flash")
+        self.combo_gemini_model.addItem("⚡ gemini-3.1-flash-lite (সুপার ফাস্ট — রিকমেন্ডেড)", "gemini-3.1-flash-lite")
+        self.combo_gemini_model.addItem("🚀 gemini-3.5-flash (উন্নত ও স্থিতিশীল)", "gemini-3.5-flash")
+        self.combo_gemini_model.addItem("🧪 gemini-3.8-flash (সর্বশেষ প্রিভিউ)", "gemini-3.8-flash")
 
-        current_model = self.config.get("gemini_model", "gemini-3.5-flash")
+        current_model = self.config.get("gemini_model", "gemini-3.1-flash-lite")
         idx_model = self.combo_gemini_model.findData(current_model)
         if idx_model >= 0:
             self.combo_gemini_model.setCurrentIndex(idx_model)
